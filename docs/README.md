@@ -43,7 +43,11 @@ echo '{"apps":[],"global":[],"tavern":[]}' > ~/.local/share/hyprtavern/hyprtaver
 
 ## Architecture
 
-Applications register themselves on the bus as `objects`, each exposing a set of protocols it implements along with discoverable properties. Other applications query the bus to find objects matching specific protocols or properties, receiving object handles that reveal metadata and enable connection. When connecting, hyprtavern passes a file descriptor directly between the two applications, establishing a peer-to-peer hyprwire channel that bypasses the bus entirely for subsequent communication. The permission system operates atomically—applications request permission groups that persist either for the session or permanently, with non-sandboxed apps optionally skipping checks.
+- Applications register themselves on the bus as `objects`, each exposing a set of protocols it implements along with discoverable properties.
+- Other applications query the bus to find objects matching specific protocols or properties, receiving object handles that reveal metadata and enable connection.
+- When connecting, hyprtavern passes a file descriptor directly between the two applications, establishing a peer-to-peer hyprwire channel that bypasses the bus entirely for subsequent communication.
+- Applications request permission groups that persist either for the session or permanently, with non-sandboxed apps optionally skipping checks.
+<!-- yes is ai summary, generated from my voice notes -->
 
 ### Registration Flow
 
@@ -73,13 +77,14 @@ Located in hyprwire-protocols (`hyprtavern` branch):
 
 ## Common Issues
 
-- "Couldn't load proto: File was not found"
+> "Couldn't load proto: File was not found"
 
-  > You're missing hyprwire-protocols or using the wrong branch
+You're missing hyprwire-protocols or using the wrong branch
 
-- Missing type `HP_HYPRTAVERN_CORE_V1_FD`
+> Missing type `HP_HYPRTAVERN_CORE_V1_FD`
 
-  > Your `hyprwire` version is too old. Install `hyprwire-git`
+Your `hyprwire` version is too old. Install `hyprwire-git`
 
-- `CSetupLineEdit` has no member `password`
-  > Your `hyprtoolkit` version is too old. Install `hyprtoolkit-git`
+> `CSetupLineEdit` has no member `password`
+
+Your `hyprtoolkit` version is too old. Install `hyprtoolkit-git`

@@ -34,13 +34,6 @@ PATH="$PWD/build/barmaids/hyprtavern-kv:$PATH" ./build/hyprtavern
 #         └── hyprtavern-spy (debugging)
 ```
 
-**Note**: Encryption isn't implemented yet. To bypass the setup prompt, pre-create the data file:
-
-```bash
-mkdir -p ~/.local/share/hyprtavern
-echo '{"apps":[],"global":[],"tavern":[]}' > ~/.local/share/hyprtavern/hyprtavern-kv.dat
-```
-
 ## Architecture
 
 - Applications register themselves on the bus as `objects`, each exposing a set of protocols it implements along with discoverable properties.
@@ -51,19 +44,77 @@ echo '{"apps":[],"global":[],"tavern":[]}' > ~/.local/share/hyprtavern/hyprtaver
 
 ### Registration Flow
 
-![Registration Flow](assets/registration_flow.svg)
+```mermaid
+%%{init: {'sequence': {'mirrorActors': false, 'noteAlign': 'left'}}}%%
+sequenceDiagram
+    participant AppA as App A
+    participant Tavern as hyprtavern
+
+    AppA->>Tavern: get_bus_object
+    Tavern-->>AppA: object_id: 42
+
+    Note over AppA: #nbsp;#nbsp;#nbsp;#nbsp;#nbsp;Bus Object (id=42)<br/>- expose_protocol("my_protocol_v1")<br/>- expose_property("APP:TYPE=daemon")<br/>- require_permissions([21000])
+```
 
 ### Discovery & Connection
 
-![Discovery and Connection](assets/discovery_and_connection.svg)
+```mermaid
+%%{init: {'sequence': {'mirrorActors': false}}}%%
+sequenceDiagram
+    participant AppB as App B
+    participant Tavern as hyprtavern
+    participant AppA as App A
+
+    AppB->>Tavern: get_query_object<br/>(protocol_names, props)
+    Tavern-->>AppB: results: [42]
+
+    AppB->>Tavern: get_object_handle(42)
+    Tavern-->>AppB: name, protocols, props
+    Tavern-->>AppB: done
+
+    AppB->>Tavern: connect()
+    Tavern->>AppA: new_fd<br/>(wire_fd, security_token)
+    Tavern-->>AppB: socket(fd)
+
+    Note over AppB,AppA: direct hyprwire channel
+```
 
 ### Permission Request Flow
 
-![Permission Request Flow](assets/permission_request_flow.svg)
+```mermaid
+%%{init: {'sequence': {'mirrorActors': false}}}%%
+sequenceDiagram
+    participant AppB as App B
+    participant Tavern as hyprtavern
+    participant Policy as UI/Policy
+
+    AppB->>Tavern: get_security_object
+    Tavern-->>AppB: token
+
+    AppB->>Tavern: set_identity(name, desc)
+
+    AppB->>Tavern: obtain_permission<br/>(monitoring_basic, session)
+    Tavern->>Policy: prompt/check_policy
+    Policy-->>Tavern: granted/denied
+
+    Tavern-->>AppB: permission_result<br/>(granted/denied)
+```
 
 ### KV Store Operations
 
-![KV Store Operations](assets/kv_store_operations.svg)
+```mermaid
+%%{init: {'sequence': {'mirrorActors': false}}}%%
+sequenceDiagram
+    participant App as App
+    participant KV as hyprtavern-kv
+
+    App->>KV: set_value(key, val, app_value)
+    Note right of KV: ~/.local/share/hyprtavern/<br/>hyprtavern-kv.dat
+    KV-->>App: value_set
+
+    App->>KV: get_value(key, app_value)
+    KV-->>App: value_obtained
+```
 
 ### Protocols
 

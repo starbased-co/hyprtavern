@@ -47,13 +47,13 @@ PATH="$PWD/build/barmaids/hyprtavern-kv:$PATH" ./build/hyprtavern
 ```mermaid
 %%{init: {'sequence': {'mirrorActors': false, 'noteAlign': 'left'}}}%%
 sequenceDiagram
-    participant AppA as App A
+    participant App as App
     participant Tavern as hyprtavern
 
-    AppA->>Tavern: get_bus_object
-    Tavern-->>AppA: object_id: 42
+    App->>Tavern: get_bus_object
+    Tavern-->>App: object_id: 42
 
-    Note over AppA: #nbsp;#nbsp;#nbsp;#nbsp;#nbsp;Bus Object (id=42)<br/>- expose_protocol("my_protocol_v1")<br/>- expose_property("APP:TYPE=daemon")<br/>- require_permissions([21000])
+    Note over App: #nbsp;#nbsp;#nbsp;#nbsp;#nbsp;Bus Object (id=42)<br/>- expose_protocol("my_protocol_v1")<br/>- expose_property("APP:TYPE=daemon")<br/>- require_permissions([21000])
 ```
 
 ### Discovery & Connection
@@ -84,20 +84,20 @@ sequenceDiagram
 ```mermaid
 %%{init: {'sequence': {'mirrorActors': false}}}%%
 sequenceDiagram
-    participant AppB as App B
+    participant App as App
     participant Tavern as hyprtavern
     participant Policy as UI/Policy
 
-    AppB->>Tavern: get_security_object
-    Tavern-->>AppB: token
+    App->>Tavern: get_security_object
+    Tavern-->>App: token
 
-    AppB->>Tavern: set_identity(name, desc)
+    App->>Tavern: set_identity(name, desc)
 
-    AppB->>Tavern: obtain_permission<br/>(monitoring_basic, session)
+    App->>Tavern: obtain_permission<br/>(monitoring_basic, session)
     Tavern->>Policy: prompt/check_policy
     Policy-->>Tavern: granted/denied
 
-    Tavern-->>AppB: permission_result<br/>(granted/denied)
+    Tavern-->>App: permission_result<br/>(granted/denied)
 ```
 
 ### KV Store Operations
